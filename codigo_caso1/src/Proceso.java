@@ -220,6 +220,7 @@ public class Proceso extends Thread {
         {
             etapa3();
             try {
+                //Se espera a que los otros procesos terminen para poder ser ordenados y mostrados
                 barrier.await();
             } catch (Exception e) {
                 System.out.println("No se puede hacer el await");

@@ -29,11 +29,10 @@ public class App {
     
         Buffer bufferInicial = new Buffer(tamanioBuffer);
         Buffer bufferMitad = new Buffer(tamanioBuffer);
+        //Buffer de tamaño ilimitado
         Buffer bufferFinal = new Buffer(2000000000);
 
         CyclicBarrier barrier = new CyclicBarrier(cantidadProcesos + 1);
-        
-        //Prueba: Tengo una idea con el buffer
 
         Proceso procesoNaranjaUno = new Proceso(0, "naranja", cantidadProductos, bufferInicial, bufferMitad, bufferFinal, cantidadProcesos, barrier);
         Proceso procesoNaranjaDos = new Proceso(1, "naranja", cantidadProductos, bufferInicial, bufferMitad, bufferFinal, cantidadProcesos, barrier);
@@ -55,6 +54,5 @@ public class App {
         etaFinal.start();
 
         barrier.await();
-
     }
 }
