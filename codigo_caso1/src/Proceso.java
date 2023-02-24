@@ -17,11 +17,11 @@ public class Proceso extends Thread {
     public Proceso(int id, String tipo, int cantidadProductos, Buffer bufferEtapa1, Buffer bufferEtapa2, Buffer bufferEtapaFinal, Integer capProc, CyclicBarrier barrier) {
         this.id = id;
         this.tipo = tipo;
-        this.cantidadProductos = cantidadProductos;
+        Proceso.cantidadProductos = cantidadProductos;
         this.bufferEtapa1 = bufferEtapa1;
         this.bufferEtapa2 = bufferEtapa2;
         this.bufferEtapaFinal = bufferEtapaFinal;
-        this.capProc = capProc;
+        Proceso.capProc = capProc;
         this.barrier = barrier;
     }
 
@@ -29,20 +29,21 @@ public class Proceso extends Thread {
         Integer temp = cantidadProductos;
         while (temp > 0)
         {
+            //Se generan la cantidad de productos que se indicaron en el main, por cada proceso
             Producto productoNuevo = new Producto(identificador.getId(), tipo);
             try {
+                //Sleep que asegura que se almacenen todos los prodcutos en el buffer
                 sleep(500);
             } catch (Exception e) {
-                // TODO: handle exception
             }
             if (tipo == "naranja") {
                 try {
                     sleep(500);
                 } catch (Exception e) {
-                    // TODO: handle exception
                 }
                 while (!bufferEtapa1.almacenarNaranja(productoNuevo)) 
                 {
+                    //Espera semiactiva y se almacena el producto naranja en el buffer 1
                     Thread.yield();
                 }
             } else if (tipo == "azul") 
@@ -50,8 +51,8 @@ public class Proceso extends Thread {
                 try {
                     sleep(500);
                 } catch (Exception e) {
-                    // TODO: handle exception
                 }
+                //Espera pasiva. Se almacena el producto azul en el buffer 1
                 bufferEtapa1.almacenarAzul(productoNuevo);
             }
             else 
@@ -59,6 +60,8 @@ public class Proceso extends Thread {
                 System.out.println("ERROR: Tipo de producto no reconocido");
             }
             temp--;
+
+            //Se agrega la información de la etapa 1 de cada producto para luego mostrarla
             synchronized (this)
             {
                 String mensaje = "Etapa 1: Proceso " + id + ".";
@@ -83,15 +86,19 @@ public class Proceso extends Thread {
                 Producto productoExtraido;
                 while((productoExtraido = bufferEtapa1.extraerNaranja()) == null)
                 {
+                    //Espera semiactiva, se extrae el producto naranja del buffer 1
                     Thread.yield();
                 }
                 try {
-                    //int numeroAleatorio = (int)(Math.random() * (500 - 50 + 1) + 50);
+                    //Se procesa el producto naranja
                     sleep(numeroAleatorio);
                 } catch (Exception e) {
                     System.out.println("Error en la espera");
                 }
+                //Se almacena el producto naranja en el buffer 2
                 bufferEtapa2.almacenarNaranja(productoExtraido);
+
+                //Se agrega la información de la etapa 2 de cada producto naranja para luego mostrarla
                 synchronized (this) {
 
                     String mensaje = " Etapa 2: Proceso " + id + " proecesado en " + numeroAleatorio + " milisegundos.";
@@ -106,14 +113,18 @@ public class Proceso extends Thread {
             else if (tipo == "azul")
             {
                 Producto productoExtraido;
+                //Se extrae el producto azul del buffer 1
                 productoExtraido = bufferEtapa1.extraerAzul();
                 try {
-                    //int numeroAleatorio = (int)(Math.random() * (500 - 50 + 1) + 50);
+                    //Se procesa el producto azul
                     sleep(numeroAleatorio);
                 } catch (Exception e) {
                     
                 }
+                //Espera pasiva. Se almacena el producto azul en el buffer 2
                 bufferEtapa2.almacenarAzul(productoExtraido);
+
+                //Se agrega la información de la etapa 2 de cada producto azul para luego mostrarla
                 synchronized (this) {
 
                     String mensaje = " Etapa 2: Proceso " + id + " proecesado en " + numeroAleatorio + " milisegundos.";
@@ -141,17 +152,22 @@ public class Proceso extends Thread {
         while (temp > 0)
         {
             Producto productoExtraido;
+            //Se extrae el producto rojo del buffer 2
             while((productoExtraido = bufferEtapa2.extraerRojo()) == null)
             {
                 //Nada espera activa
             }
             try {
-                //int numeroAleatorio = (int)(Math.random() * (500 - 50 + 1) + 50);
+                //Se procesa el producto rojo
                 sleep(numeroAleatorio);
             } catch (Exception e) {
             }
+
+            //Se almacena el producto rojo en el buffer final
             bufferEtapaFinal.almacenarRojo(productoExtraido);
             temp--;
+
+            //Se agrega la información de la etapa 3 de cada producto rojo para luego mostrarla
             synchronized (this) {
 
                 String mensaje = " Etapa 3: Proceso " + id + " proecesado en " + numeroAleatorio + " milisegundos.";
@@ -172,17 +188,21 @@ public class Proceso extends Thread {
         while (temp > 0)
         {
             Producto productoExtraido;
+
+            //Se extrae el producto rojo del buffer final
             while((productoExtraido = bufferEtapaFinal.extraerRojo()) == null)
             {
                 //Nada espera activa
             }
             try {
-                //int numeroAleatorio = (int)(Math.random() * (500 - 50 + 1) + 50);
+                //Se procesa el producto rojo
                 sleep(numeroAleatorio);
             } catch (Exception e) {
             }
             pFinal.add(productoExtraido);
             temp--;
+
+            //Se ordenan los productos en el mismo orden en el que fueron creados por medio de su Identificador
             Collections.sort(pFinal, (p1, p2) -> p1.getId() - p2.getId());
         }
     }
