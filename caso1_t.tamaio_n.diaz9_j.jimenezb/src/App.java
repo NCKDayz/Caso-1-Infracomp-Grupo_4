@@ -23,6 +23,8 @@ public class App {
         } catch (Exception e) {
             System.out.println("ERROR READER");
         }
+
+        System.out.println("\n------- Cargando -------");
         
     
         Buffer bufferInicial = new Buffer(tamanioBuffer);
